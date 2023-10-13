@@ -1,0 +1,13 @@
+{
+  "name": "online-bookstore",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start-server":"cd server && npm run start:dev",
+    "start-client":"cd client && npm run dev",
+    "start-app":"concurrently \" npm run start-server \"  \" npm run start-client \" "
+  },
+  "author": "",
+  "license": "ISC"
+}
