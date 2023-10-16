@@ -3,43 +3,10 @@ node_modules
 .env
 
 
-
-
-############## client ################
-
-
-client/.env
-# Logs
-client/logs
-client/*.log
-client/npm-debug.log*
-client/yarn-debug.log*
-client/yarn-error.log*
-client/pnpm-debug.log*
-client/lerna-debug.log*
-
-client/node_modules
-client/dist
-client/dist-ssr
-client/*.local
-
-# Editor directories and files
-client/.vscode/*
-client/!.vscode/extensions.json
-client/.idea
-client/.DS_Store
-client/*.suo
-client/*.ntvs*
-client/*.njsproj
-client/*.sln
-client/*.sw?
-
-
-
-
 ############## server ################
 
 server/.env
+server/*.env
 # compiled output
 server/dist
 server/node_modules
@@ -75,3 +42,40 @@ server/!.vscode/settings.json
 server/!.vscode/tasks.json
 server/!.vscode/launch.json
 server/!.vscode/extensions.json
+
+
+
+
+
+
+
+############## client ################
+
+
+client/.env
+# Logs
+client/logs
+client/*.log
+client/npm-debug.log*
+client/yarn-debug.log*
+client/yarn-error.log*
+client/pnpm-debug.log*
+client/lerna-debug.log*
+
+client/node_modules
+client/dist
+client/dist-ssr
+client/*.local
+
+# Editor directories and files
+client/.vscode/*
+client/!.vscode/extensions.json
+client/.idea
+client/.DS_Store
+client/*.suo
+client/*.ntvs*
+client/*.njsproj
+client/*.sln
+client/*.sw?
+
+

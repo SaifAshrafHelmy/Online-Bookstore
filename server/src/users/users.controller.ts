@@ -30,4 +30,6 @@ export class UsersController {
   getProfile(@Request() req) {
     return req.user?.email;
   }
+
+  // no logout route needed, client should remove the token from localStorage or cookie
 }
