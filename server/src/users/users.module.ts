@@ -13,7 +13,7 @@ import { ConfigService } from '@nestjs/config';
       useFactory: (configService: ConfigService) => {
         const jwtSecret =
           configService.get<string>('JWT_SECRET') || 'j4234j23DS$';
-        console.log(`JWT_SECRET from configService: ${jwtSecret}`); // Log the JWT secret
+        // console.log(`JWT_SECRET from configService: ${jwtSecret}`); // Log the JWT secret
         return {
           global: true,
           secret: jwtSecret,

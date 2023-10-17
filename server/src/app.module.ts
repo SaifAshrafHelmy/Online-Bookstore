@@ -8,6 +8,8 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { OrdersDetailsModule } from './orders_details/orders_details.module';
 import { OrderItemModule } from './order_item/order_item.module';
 import { ConfigModule } from '@nestjs/config';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 
 @Module({
   imports: [
@@ -31,6 +33,20 @@ import { ConfigModule } from '@nestjs/config';
     ReviewsModule,
     OrdersDetailsModule,
     OrderItemModule,
+    MailerModule.forRoot({
+      transport:
+        'smtps://saifashrafhelmy@gmail.com:peyuammemxsghirn@smtp.gmail.com',
+      defaults: {
+        from: '"Booktopia" <saifashrafhelmy@gmail.com>',
+      },
+      template: {
+        dir: __dirname + '/ejs_templates',
+        adapter: new EjsAdapter(),
+        options: {
+          strict: true,
+        },
+      },
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

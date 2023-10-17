@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Request,
   UseGuards,
@@ -29,6 +30,13 @@ export class UsersController {
   @Get('profile')
   getProfile(@Request() req) {
     return req.user?.email;
+  }
+
+  // TODO Make a route to verify email
+
+  @Get('/verify/:token')
+  verifyEmail(@Param('token') token: string) {
+    return this.usersService.verifyEmail(token);
   }
 
   // no logout route needed, client should remove the token from localStorage or cookie

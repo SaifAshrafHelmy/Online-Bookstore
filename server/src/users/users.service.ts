@@ -10,12 +10,16 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDTO } from './dtos/login-user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { MailerService } from '@nestjs-modules/mailer';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
+    private readonly mailerService: MailerService,
+    private readonly configService: ConfigService,
   ) {}
 
   async register(registerUserDTO: RegisterUserDTO) {
@@ -23,7 +27,7 @@ export class UsersService {
     const potentialUser = await this.userRepo.findOneBy({
       email: registerUserDTO.email,
     });
-    if (potentialUser) return new HttpException('User Already Exists', 409);
+    if (potentialUser) throw new HttpException('User Already Exists', 409);
 
     // hash the password
     registerUserDTO.password = await bcrypt.hash(registerUserDTO.password, 10);
@@ -34,9 +38,18 @@ export class UsersService {
 
     // sign in the user (send access token)
     const payload = { sub: newUser.id, email: newUser.email };
+    const access_token = await this.jwtService.signAsync(payload);
+
+    let full_name =
+      registerUserDTO.first_name + ' ' + registerUserDTO.last_name;
+
+    full_name = full_name.replace(/\b\w/g, (l) => l.toUpperCase());
+
+    this.sendVerificationEmail(registerUserDTO.email, full_name, access_token);
+
     return {
       message: 'User successfully registered.',
-      access_token: await this.jwtService.signAsync(payload),
+      access_token,
     };
   }
 
@@ -52,13 +65,54 @@ export class UsersService {
       loginUserDTO.password,
       existingUser.password,
     );
-    if (!isRightPassword) return new UnauthorizedException('Wrong password');
+    if (!isRightPassword) throw new UnauthorizedException('Wrong password');
 
     /* Create a jwt token and send it */
     const payload = { sub: existingUser.id, email: existingUser.email };
+    // this.sendVerificationEmail(loginUserDTO.email);
     return {
-      message: 'User successfully signed in.',
+      message: 'User successfully logged in.',
       access_token: await this.jwtService.signAsync(payload),
     };
+  }
+
+  async verifyEmail(token: string) {
+    const payload = await this.jwtService.verifyAsync(token, {
+      secret: this.configService.get<string>('JWT_SECRET'),
+    });
+    if (!payload) {
+      throw new UnauthorizedException();
+    }
+    // TODO: SAVE IN DB THAT EMAIL IS VERIFIED
+    return {
+      message: 'Email verified successfully.',
+    };
+  }
+
+  private async sendVerificationEmail(
+    email: string,
+    full_name: string,
+    access_token: string,
+  ): Promise<void> {
+    // TODO: Remove email overriding in production
+    email = 'saifashrafhelmy@yahoo.com';
+    try {
+      const SERVER_LINK = this.configService.get<string>('SERVER_LINK');
+      const ver_link = `${SERVER_LINK}\\users\\verify\\${access_token}`;
+      await this.mailerService.sendMail({
+        to: email, // list of receivers
+        subject: 'Verify your Booktopia Email ✔', // Subject line
+        text: 'Online Bookstore Login Notification', // plaintext body
+        template: 'email_verification',
+        context: {
+          // Data to be sent to template engine. (access with locals.variableName)
+          ver_link,
+          full_name,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      throw new HttpException('Could not send email', 500);
+    }
   }
 }
