@@ -16,6 +16,7 @@ import { BooksService } from './books.service';
 import { PaginationQueryDto } from './dtos/pagination-query.dto';
 import { UpdateBookDTO } from './dtos/update-book.dto';
 import { AuthGuard } from 'src/users/auth.guard';
+import { User } from 'src/users/entities/user.entity';
 
 @UseGuards(AuthGuard)
 @Controller('books')
@@ -27,10 +28,9 @@ export class BooksController {
   @Post()
   addNewBook(@Body() addNewBookDTO: AddNewBookDTO, @Req() request) {
     // TODO: user current user session ID
-    const userId = request.user.id;
-    if (!userId) throw new UnauthorizedException();
-
-    return this.booksService.addNew(userId, addNewBookDTO);
+    const user: Partial<User> = request.user;
+    if (user.role !== 'seller') throw new UnauthorizedException();
+    return this.booksService.addNew(user.id, addNewBookDTO);
   }
 
   @Get()
@@ -50,16 +50,16 @@ export class BooksController {
     @Req() request,
   ) {
     // TODO: user current user session ID
-    const userId = request.user.id;
-    if (!userId) throw new UnauthorizedException();
+    const user: Partial<User> = request.user;
+    if (user.role !== 'seller') throw new UnauthorizedException();
 
-    return this.booksService.updateOne(bookId, userId, updateBookDTO);
+    return this.booksService.updateOne(bookId, user.id, updateBookDTO);
   }
 
   @Delete(':id')
   deleteBook(@Param('id') bookId: number, @Req() request) {
-    const userId = request.user.id;
-    if (!userId) throw new UnauthorizedException();
-    return this.booksService.deleteOne(bookId, userId);
+    const user: Partial<User> = request.user;
+    if (user.role !== 'seller') throw new UnauthorizedException();
+    return this.booksService.deleteOne(bookId, user.id);
   }
 }

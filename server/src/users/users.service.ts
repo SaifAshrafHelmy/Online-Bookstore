@@ -37,7 +37,11 @@ export class UsersService {
     await this.userRepo.save(newUser);
 
     // sign in the user (send access token)
-    const payload = { id: newUser.id, email: newUser.email };
+    const payload = {
+      id: newUser.id,
+      email: newUser.email,
+      role: newUser.role,
+    };
     const access_token = await this.jwtService.signAsync(payload);
 
     let full_name =
@@ -68,7 +72,11 @@ export class UsersService {
     if (!isRightPassword) throw new UnauthorizedException('Wrong password');
 
     /* Create a jwt token and send it */
-    const payload = { id: existingUser.id, email: existingUser.email };
+    const payload = {
+      id: existingUser.id,
+      email: existingUser.email,
+      role: existingUser.role,
+    };
     // this.sendVerificationEmail(loginUserDTO.email);
     return {
       message: 'User successfully logged in.',
