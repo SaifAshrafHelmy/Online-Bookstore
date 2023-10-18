@@ -5,12 +5,17 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {
+  ILike,
+  LessThanOrEqual,
+  Like,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import { Book } from './entities/book.entity';
 import { AddNewBookDTO } from './dtos/add-new-book.dto';
 import { User } from 'src/users/entities/user.entity';
 import { UpdateBookDTO } from './dtos/update-book.dto';
-
 
 @Injectable()
 export class BooksService {
@@ -19,14 +24,37 @@ export class BooksService {
     @InjectRepository(Book) private readonly bookRepo: Repository<Book>,
   ) {}
 
-  async findAll(paginationQueryDto): Promise<Book[]> {
-    const { limit, offset } = paginationQueryDto;
+  async findAll(filterQueryDTO): Promise<Book[]> {
+    const {
+      limit,
+      offset,
+      category,
+      author,
+      published_year,
+      priceGTE,
+      priceLTE,
+    } = filterQueryDTO;
     const books = await this.bookRepo.find({
+      // filters
+      where: {
+        ...(category && { category: ILike(`%${category}%`) }),
+        ...(author && { author: ILike(`%${author}%`) }),
+        ...(published_year && { published_year: published_year }),
+        ...(priceGTE && { price: MoreThanOrEqual(priceGTE) }),
+        ...(priceLTE && { price: LessThanOrEqual(priceLTE) }),
+      },
+
+      // fields to select
       select: this.properties_to_be_selected,
       relations: ['seller'],
+
+      // pagination
       skip: offset,
       take: limit,
       order: {
+        // if contradictory, next one overrides
+        ...(priceLTE && { price: 'DESC' }),
+        ...(priceGTE && { price: 'ASC' }),
         id: 'ASC',
       },
     });
@@ -55,7 +83,8 @@ export class BooksService {
     const newBook = this.bookRepo.create(book);
     const user = await this.userRepo.findOneBy({ id: userId });
     newBook.seller = user;
-    return await this.bookRepo.save(newBook);
+    const savedBook = await this.bookRepo.save(newBook);
+    return this.findOne(savedBook.id);
   }
 
   async updateOne(

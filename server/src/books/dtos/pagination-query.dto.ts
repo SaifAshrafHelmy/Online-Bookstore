@@ -1,6 +1,6 @@
 import { IsOptional, IsPositive } from 'class-validator';
 
-export class PaginationQueryDto {
+export class PaginationQueryDTO {
   @IsOptional()
   @IsPositive()
   limit: number;
