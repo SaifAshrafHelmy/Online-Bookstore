@@ -1,71 +1,70 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from 'src/users/entities/user.entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
 @Entity()
 export class Book {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @PrimaryGeneratedColumn()
-    id: number;
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: false,
+  })
+  title: string;
 
-    @Column({
-        type:"varchar",
-        length:50,
-        nullable:false
-        })
-    title: string;
+  @Column({
+    type: 'varchar',
+    length: 50,
+    nullable: false,
+  })
+  author: string;
 
-    @Column({
-        type:"varchar",
-        length:50,
-        nullable:false
-        })
-    author: string
+  @Column({
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
+  category: string;
 
-    @Column({
-        type:"varchar",
-        length:20,
-        nullable:true
-        })
-    category: string;
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
+  description: string;
 
-    @Column({
-        type:"text",
-        nullable:true
-        })
-    description: string;
+  @Column({
+    type: 'double precision',
+    nullable: false,
+  })
+  price: number;
 
-    @Column({
-        type:"double precision",
-        nullable:false
-        })
-    price: number;
+  @Column({
+    type: 'text',
+    nullable: true,
+  })
+  cover_image: string;
 
-    @Column({
-        type:"text",
-        nullable:true
-        })
-    cover_image: string
+  @Column({
+    type: 'integer',
+    nullable: false,
+  })
+  stock_quantity: number;
 
-    @Column({
-        type:"integer",
-        nullable:false
-        })
-    stock_quantity: number;
+  @Column({
+    type: 'integer',
+    nullable: true,
+  })
+  published_year: number;
 
-    @Column({
-        type:"integer",
-        nullable:true
-        })
-    published_year: number;
+  @Column({
+    type: 'double precision',
+    nullable: true,
+  })
+  average_rating: number;
 
-    @Column({
-        type:"double precision",
-        nullable:true
-        })
-    average_rating: number;
-
-    
-
-
+  @ManyToOne(() => User, (user) => user.books_for_sale)
+  seller: User;
 }
 
 /* 

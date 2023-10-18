@@ -1,9 +1,22 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Book } from 'src/books/entities/book.entity';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+
+export enum UserRole {
+  ADMIN = 'admin',
+  CUSTOMER = 'customer',
+  SELLER = 'seller',
+}
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({
+    type: 'enum',
+    enum: UserRole,
+  })
+  role: UserRole;
 
   @Column({
     type: 'varchar',
@@ -52,6 +65,9 @@ export class User {
     nullable: true,
   })
   phone_number: string;
+
+  @OneToMany(() => Book, (book) => book.seller)
+  books_for_sale: Book[];
 }
 
 /* 
