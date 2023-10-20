@@ -1,47 +1,48 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import { Max, Min } from 'class-validator';
+import { Book } from 'src/books/entities/book.entity';
+import { User } from 'src/users/entities/user.entity';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  ManyToOne,
+} from 'typeorm';
 
 @Entity()
 export class Review {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @PrimaryGeneratedColumn()
-    id: number;
+  @ManyToOne(() => Book, (book) => book.reviews)
+  book: Book;
 
-    @Column({
-        type:"integer",
-        nullable:false
-        })
-    book_id: number;
+  @ManyToOne(() => User, (user) => user.reviews)
+  author: User;
 
-    @Column({
-        type:"integer",
-        nullable:false
-        })
-    user_id: number;
+  @Column({
+    type: 'varchar',
+    length: 250,
+    nullable: true,
+  })
+  comment: string;
 
-    @Column({
-        type:"varchar",
-        length:250,
-        nullable:true
-        })
-    comment: string
+  @Column({
+    type: 'integer',
+    nullable: false,
+  })
+  @Min(0)
+  @Max(10)
+  rating: number;
 
-    @Column({
-        type:"integer",
-        nullable:false
-        })
-    rating: string;
+  @CreateDateColumn()
+  created_at: Date;
 
-    @CreateDateColumn()
-    created_at: Date
-
-    @Column({
-        type:"timestamp",
-        nullable:false
-        })
-    time_stamp: Date;
-  
-
-
+  //   @Column({
+  //     type: 'timestamp',
+  //     nullable: false,
+  //   })
+  //   time_stamp: Date;
 }
 
 /* 

@@ -1,8 +1,11 @@
 import { Book } from 'src/books/entities/book.entity';
+import { Order } from 'src/orders/entities/order.entity';
+import { Review } from 'src/reviews/entities/review.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 export enum UserRole {
-  ADMIN = 'admin',
+  // ADMIN = 'admin',
+
   CUSTOMER = 'customer',
   SELLER = 'seller',
 }
@@ -68,6 +71,12 @@ export class User {
 
   @OneToMany(() => Book, (book) => book.seller)
   books_for_sale: Book[];
+
+  @OneToMany(() => Review, (review) => review.author)
+  reviews: Review[];
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 }
 
 /* 

@@ -26,5 +26,6 @@ import { ConfigService } from '@nestjs/config';
   ],
   controllers: [BooksController],
   providers: [BooksService],
+  exports: [BooksService],
 })
 export class BooksModule {}
