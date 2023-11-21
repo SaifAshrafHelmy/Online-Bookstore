@@ -16,7 +16,7 @@ async function bootstrap() {
       },
     }),
   );
-  const app_port: number = 3000;
+  const app_port: number = 5000;
   console.log(
     `nestjs express server is listening on http://localhost:${app_port}`,
   );

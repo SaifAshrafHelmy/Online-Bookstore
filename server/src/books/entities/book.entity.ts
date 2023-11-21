@@ -1,3 +1,5 @@
+// import { OrderItem } from 'src/orders/entities/orderItem.entity';
+import { OrderItem } from 'src/orders/entities/order_item.entity';
 import { Review } from 'src/reviews/entities/review.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
@@ -75,6 +77,9 @@ export class Book {
 
   @OneToMany(() => Review, (review) => review.book)
   reviews: Review[];
+
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.book)
+  orderItems: OrderItem[];
 }
 
 /* 

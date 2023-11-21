@@ -1,5 +1,6 @@
 import { Book } from 'src/books/entities/book.entity';
 import { Order } from 'src/orders/entities/order.entity';
+// import { Order } from 'src/orders/entities/order.entity';
 import { Review } from 'src/reviews/entities/review.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
@@ -75,7 +76,7 @@ export class User {
   @OneToMany(() => Review, (review) => review.author)
   reviews: Review[];
 
-  @OneToMany(() => Order, (order) => order.user)
+  @OneToMany(() => Order, (order) => order.customer)
   orders: Order[];
 }
 

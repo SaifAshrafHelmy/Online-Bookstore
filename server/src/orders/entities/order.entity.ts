@@ -1,54 +1,39 @@
-import { Order_item } from 'src/order_items/entities/order_item.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
+  Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
+import { OrderItem } from './order_item.entity';
 
 @Entity()
 export class Order {
+  constructor(initialData: Partial<Order> = null) {
+    if (initialData !== null) {
+      Object.assign(this, initialData);
+    }
+  }
+
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User, (user) => user.orders)
-  user: User;
+  // @Column({ name: 'customer_id', type: 'numeric' })
+  // customerId: number;
 
-  @OneToMany(() => Order_item, (order_item) => order_item.order)
-  order_items: Order_item[];
-
-  @Column({
-    type: 'double precision',
-    nullable: false,
-  })
-  total_amount: number;
-
-  @Column({
-    type: 'varchar',
-    length: 20,
-    nullable: true,
-  })
-  payment_method: string;
+  @Column({ name: 'total_amount', type: 'numeric' })
+  totalAmount: number;
 
   @CreateDateColumn()
-  created_at: Date; // Creation date
+  created_at: Date;
+
+  @ManyToOne(() => User, (user) => user.orders)
+  // @JoinColumn({ name: 'customer_id', referencedColumnName: 'id' })
+  customer: User;
+
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
+  orderItems: OrderItem[];
 }
-
-/* 
-CREATE TABLE "public"."orders_details" (
-  "id" integer NOT NULL,
-  "user_id" integer NOT NULL,
-  "total_amount" double precision NOT NULL,
-  "timestamp" date NOT NULL,
-  "payment_method" varchar(255),
-  CONSTRAINT "_copy_3" PRIMARY KEY ("id", "user_id"),
-  CONSTRAINT "fk_orders_details_users_1" FOREIGN KEY ("user_id") REFERENCES "public"."users" ("id")
-)
-;
-
-
-
-*/

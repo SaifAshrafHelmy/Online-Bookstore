@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { BooksModule } from './books/books.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { OrdersModule } from './orders/orders.module';
-import { OrderItemsModule } from './order_items/order_items.module';
+// import { OrderItemsModule } from './order_items/order_items.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
@@ -28,7 +28,7 @@ export const AppModuleImportsArray = [
   BooksModule,
   ReviewsModule,
   OrdersModule,
-  OrderItemsModule,
+  // OrderItemsModule,
   MailerModule.forRootAsync({
     useFactory: (configService: ConfigService) => {
       const SMTP_ADDRESS = configService.get<string>('SMTP_ADDRESS');
