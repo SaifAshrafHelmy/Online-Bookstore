@@ -21,8 +21,9 @@ export class OrdersService {
     @InjectRepository(Book) private readonly bookRepo: Repository<Book>,
   ) {}
 
-  async findAll() {
-    const orders = await this.orderRepo.find({});
+  async findAllUserOrders(userId) {
+    const currentUser = await this.userRepo.findOneBy({ id: userId });
+    const orders = await this.orderRepo.findBy({ customer: currentUser });
     console.log(orders);
     return orders;
   }
@@ -44,6 +45,7 @@ export class OrdersService {
     );
 
     return {
+      id: savedOrder.id,
       totalAmount: totalAmount,
       createdAt: savedOrder.created_at,
     };

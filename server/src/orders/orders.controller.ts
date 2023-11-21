@@ -18,8 +18,14 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   @Get()
-  findAllOrders() {
-    return this.ordersService.findAll();
+  findAllOrders(@Req() request) {
+    const user: Partial<User> = request.user;
+    if (user.role !== 'customer') {
+      console.log('not a customer!');
+      throw new UnauthorizedException("you're not a customer!");
+    }
+
+    return this.ordersService.findAllUserOrders(user.id);
   }
 
   @Post()
