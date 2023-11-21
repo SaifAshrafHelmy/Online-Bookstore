@@ -7,6 +7,7 @@ import {
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  RelationId,
 } from 'typeorm';
 import { OrderItem } from './order_item.entity';
 
@@ -31,7 +32,7 @@ export class Order {
   created_at: Date;
 
   @ManyToOne(() => User, (user) => user.orders)
-  // @JoinColumn({ name: 'customer_id', referencedColumnName: 'id' })
+  // @JoinColumn({ name: 'user_id', referencedColumnName: 'id' })
   customer: User;
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
