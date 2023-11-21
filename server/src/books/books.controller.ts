@@ -27,7 +27,8 @@ export class BooksController {
   @Post()
   addNewBook(@Body() addNewBookDTO: AddNewBookDTO, @Req() request) {
     const user: Partial<User> = request.user;
-    if (user.role !== 'seller') throw new UnauthorizedException();
+    if (user.role !== 'seller')
+      throw new UnauthorizedException("customers can't list new books");
 
     return this.booksService.addNew(user.id, addNewBookDTO);
   }

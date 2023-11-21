@@ -7,6 +7,7 @@ import { OrdersModule } from './orders/orders.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
+import { AuthModule } from './auth.module';
 
 export const AppModuleImportsArray = [
   ConfigModule.forRoot({
@@ -24,6 +25,7 @@ export const AppModuleImportsArray = [
     // @TODO: Disable in production
     synchronize: true,
   }),
+  AuthModule,
   UsersModule,
   BooksModule,
   ReviewsModule,

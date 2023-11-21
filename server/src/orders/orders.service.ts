@@ -24,7 +24,6 @@ export class OrdersService {
   async findAllUserOrders(userId) {
     const currentUser = await this.userRepo.findOneBy({ id: userId });
     const orders = await this.orderRepo.findBy({ customer: currentUser });
-    console.log(orders);
     return orders;
   }
 
