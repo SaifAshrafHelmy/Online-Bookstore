@@ -28,7 +28,6 @@ export class OrdersService {
   }
 
   async createFullOrder(userId, createOrderDTO: CreateOrderDto) {
-    // const userId = 47;
     // TODO: This needs to be a transaction, all succeed or all fail
     const currentUser = await this.userRepo.findOneBy({ id: userId });
 
@@ -80,7 +79,7 @@ export class OrdersService {
     if (!book) throw new NotFoundException('Book not found');
     if (book.stock_quantity < requiredQuantity)
       throw new UnprocessableEntityException(
-        `Sorry, not enough stock for the book ${book.title} `,
+        `Sorry, not enough stock for the book (${book.title}) `,
       );
     const newStock = +book.stock_quantity - +requiredQuantity;
     Object.assign(book, { stock_quantity: newStock });

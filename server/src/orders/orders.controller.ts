@@ -10,6 +10,7 @@ import {
 import { OrdersService } from './orders.service';
 import { AuthGuard } from 'src/users/auth.guard';
 import { User } from 'src/users/entities/user.entity';
+import { CreateOrderDto } from './dtos/create-order.dto';
 
 @UseGuards(AuthGuard)
 @Controller('orders')
@@ -22,7 +23,7 @@ export class OrdersController {
   }
 
   @Post()
-  createFullOrder(@Body() createOrderDTO, @Req() request) {
+  createFullOrder(@Body() createOrderDTO: CreateOrderDto, @Req() request) {
     const user: Partial<User> = request.user;
     if (user.role !== 'customer') {
       console.log('not a customer!');

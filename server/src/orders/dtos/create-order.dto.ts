@@ -1,11 +1,10 @@
-import { IsNotEmpty, IsNumber } from 'class-validator';
-import { OrderItem } from '../entities/order_item.entity';
+import { IsNotEmpty, ValidateNested } from 'class-validator';
+import { OrderItemDto } from './orderItem.dto';
+import { Type } from 'class-transformer';
 
 export class CreateOrderDto {
-  @IsNumber()
   @IsNotEmpty()
-  totalAmount: number;
-
-  @IsNotEmpty()
-  orderItems: OrderItem[];
+  @ValidateNested({ each: true })
+  @Type(() => OrderItemDto)
+  orderItems: OrderItemDto[];
 }
