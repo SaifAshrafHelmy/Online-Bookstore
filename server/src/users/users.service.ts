@@ -1,6 +1,7 @@
 import {
   HttpException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Repository } from 'typeorm';
@@ -54,6 +55,7 @@ export class UsersService {
     return {
       message: 'User successfully registered.',
       access_token,
+      expires_in: 60 * 60,
     };
   }
 
@@ -62,7 +64,7 @@ export class UsersService {
     const existingUser = await this.userRepo.findOneBy({
       email: loginUserDTO.email,
     });
-    if (!existingUser) return new HttpException('User does not exist', 404);
+    if (!existingUser) throw new NotFoundException('User does not exist');
 
     // hash the password
     const isRightPassword = await bcrypt.compare(
@@ -78,10 +80,31 @@ export class UsersService {
       role: existingUser.role,
     };
     // this.sendVerificationEmail(loginUserDTO.email);
+    // const token = await this.jwtService.signAsync(payload);
+    // return token;
     return {
       message: 'User successfully logged in.',
       access_token: await this.jwtService.signAsync(payload),
+      expires_in: 60 * 60,
     };
+  }
+  async getUserData(email: string) {
+    const user = await this.userRepo.findOne({
+      where: {
+        email,
+      },
+      select: [
+        'id',
+        'role',
+        'email',
+        'first_name',
+        'last_name',
+        'profile_picture',
+        'address',
+        'phone_number',
+      ],
+    });
+    return user;
   }
 
   async verifyEmail(token: string) {

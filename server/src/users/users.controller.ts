@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { RegisterUserDTO } from './dtos/register-user.dto';
@@ -22,13 +23,14 @@ export class UsersController {
   }
 
   @Post('login')
-  login(@Body() loginUserDTO: LoginUserDTO) {
+  async login(@Body() loginUserDTO: LoginUserDTO) {
     return this.usersService.login(loginUserDTO);
   }
 
   @UseGuards(AuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
+    return this.usersService.getUserData(req.user?.email);
     return req.user?.email;
   }
 
