@@ -1,7 +1,7 @@
 ############## root/global ################
 node_modules
 .env
-
+/.vscode
 
 ############## server ################
 
@@ -50,7 +50,6 @@ server/!.vscode/extensions.json
 
 
 ############## client ################
-
 
 client/.env
 # Logs
