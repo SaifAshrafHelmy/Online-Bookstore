@@ -143,8 +143,11 @@ export class PaymobService {
     return IframeUrl;
   }
 
-  public payWithWallet(paymentToken: string, mobileWalletNumber: string) {
-    const redirectUrl = this.getRedirectUrl(paymentToken, mobileWalletNumber);
+  public async payWithWallet(paymentToken: string, mobileWalletNumber: string) {
+    const redirectUrl = await this.getRedirectUrl(
+      paymentToken,
+      mobileWalletNumber,
+    );
     return redirectUrl;
   }
 
@@ -167,10 +170,10 @@ export class PaymobService {
     };
     try {
       const res = await axios.post(url, requestData, requestConfig);
-      console.log(res.data);
+      // console.log(res.data);
       // NOTE: if the integration id is working, it's called redirect_url, if not, it's called redirection_url
       const { success, pending, redirect_url: redirectUrl } = res.data;
-      console.log({ success }, { pending }, { redirectUrl });
+      // console.log({ success }, { pending }, { redirectUrl });
       // check for success?
       return redirectUrl;
     } catch (error) {
@@ -219,13 +222,13 @@ export class PaymobService {
 
     concatenatedValuesArr.map((value, idx) => {
       if (value === undefined || null) {
-        console.log('badKey: ', idx);
-        console.log({ obj });
+        // console.log('badKey: ', idx);
+        // console.log({ obj });
         throw new Error('One of the object values for Hmac was not found ');
       }
     });
 
-    console.log(concatenatedValuesArr);
+    // console.log(concatenatedValuesArr);
     const concatenatedValues = concatenatedValuesArr.join('');
     // console.log({ concatenatedValues });
     const calculatedHmac = createHmac('sha512', HMAC_SECRET)
@@ -233,10 +236,10 @@ export class PaymobService {
       .digest('hex')
       .toLowerCase();
 
-    console.log("here's the calculated value: ", { calculatedHmac });
-    console.log("here's the received value: ", { receivedHmac });
+    // console.log("here's the calculated value: ", { calculatedHmac });
+    // console.log("here's the received value: ", { receivedHmac });
 
-    console.log('Are they equal? ', calculatedHmac === receivedHmac);
+    // console.log('Are they equal? ', calculatedHmac === receivedHmac);
 
     return calculatedHmac === receivedHmac;
   };

@@ -11,7 +11,7 @@ import { PaymentConfiguration } from './payment.config';
 import { PaymobService } from './paymob.service';
 import { Repository } from 'typeorm';
 import { Order } from 'src/orders/entities/order.entity';
-import { PayWithCardDTO } from './dtos/payment-request.dto';
+import { PayWithCardDTO, PayWithWalletDTO } from './dtos/payment-request.dto';
 
 @Injectable()
 export class PaymentService {
@@ -66,17 +66,61 @@ export class PaymentService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
 
-    console.log(IframeUrl);
+    // console.log(IframeUrl);
     return IframeUrl;
+  }
+  async createNewWalletPayment(walletPaymentRequest: PayWithWalletDTO) {
+    // Save the payment instance in the database
+    if (!walletPaymentRequest.orderId) throw new BadRequestException();
+    const order = await this.ordersRepo.findOne({
+      where: {
+        id: walletPaymentRequest.orderId,
+      },
+      relations: {
+        payment: true,
+      },
+    });
+    if (!order) throw new NotFoundException();
+    if (order.payment && order.payment.status === 'complete')
+      return new HttpException('Order is already paid.', HttpStatus.CONFLICT);
 
-    // user sends checkout for order
-    // I get order total
-    // I create payment with the order total, set it to pending
-    // user pays, I listen, success? I turn it to success
-    return 'good';
+    // Call Paymob service
+    const [paymobOrderId, finalPaymentToken] =
+      await this.paymobService.initPayment('wallet', order.totalAmount, 'EGP');
+    const paymentData: Omit<Payment, 'id' | 'updated_at'> = {
+      payment_method: 'card',
+      status: 'pending',
+      amount: order.totalAmount,
+      currency: 'EGP',
+      paymobOrderId,
+    };
+    const cardPayment = this.paymentRepo.create(paymentData);
+    const savedPayment = await this.paymentRepo.save(cardPayment);
+    if (!savedPayment)
+      throw new HttpException(
+        'Failed to save payment',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    order.payment = savedPayment;
+    await this.ordersRepo.save(order);
+
+    const redirectionUrl = await this.paymobService.payWithWallet(
+      finalPaymentToken,
+      walletPaymentRequest.phoneNumber,
+    );
+
+    if (!redirectionUrl)
+      throw new HttpException(
+        'Failed to get payment IframeUrl',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+
+    // console.log({ redirectionUrl });
+    return redirectionUrl;
   }
 
   async updatePaymentStatus(webhookData: any, hmac: string) {
+    // console.log('Updating payment status...');
     const validPayment = this.paymobService.checkValidPaymobCallback(
       webhookData.obj,
       hmac,
@@ -89,6 +133,13 @@ export class PaymentService {
     const payment = await this.paymentRepo.findOneBy({
       paymobOrderId: webhookData.obj.order.id,
     });
+    if (!payment) {
+      throw new NotFoundException('Payment requested to update was not found');
+    }
+    // console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++');
+    // console.log('PAYMENT: ', payment);
+    // console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++');
+
     if (success) {
       payment.status = 'complete';
     } else {
@@ -109,7 +160,6 @@ export class PaymentService {
     }
     const success = webhookData.success;
     const FRONT_END_CLIENT = process.env.FRONTEND_CLIENT;
-    console.log(FRONT_END_CLIENT);
     return { url: `${FRONT_END_CLIENT}/payment/success=${success}` };
 
     // return { success };
