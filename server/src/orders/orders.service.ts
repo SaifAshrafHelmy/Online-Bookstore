@@ -10,6 +10,7 @@ import { User } from 'src/users/entities/user.entity';
 import { OrderItem } from './entities/order_item.entity';
 import { CreateOrderDto } from './dtos/create-order.dto';
 import { Book } from 'src/books/entities/book.entity';
+import { Payment } from 'src/payment/entities/payment.entity';
 
 @Injectable()
 export class OrdersService {
@@ -23,8 +24,33 @@ export class OrdersService {
 
   async findAllUserOrders(userId) {
     const currentUser = await this.userRepo.findOneBy({ id: userId });
-    const orders = await this.orderRepo.findBy({ customer: currentUser });
+    // const orders = await this.orderRepo.findBy({ customer: currentUser });
+    const orders = await this.orderRepo.find({
+      where: { customer: currentUser },
+      relations: {
+        payment: true,
+      },
+      order: { id: 'desc' },
+    });
     return orders;
+  }
+
+  async findOneUserOrder(userId, orderId) {
+    const currentUser = await this.userRepo.findOneBy({ id: userId });
+    // const orders = await this.orderRepo.findBy({ customer: currentUser });
+    const order = await this.orderRepo.findOne({
+      where: { customer: currentUser, id: orderId },
+      relations: {
+        payment: true,
+      },
+      order: { id: 'desc' },
+    });
+    if (!order)
+      throw new NotFoundException(
+        'No orders found with the given id that belong to you.',
+      );
+
+    return order;
   }
 
   async createFullOrder(userId, createOrderDTO: CreateOrderDto) {

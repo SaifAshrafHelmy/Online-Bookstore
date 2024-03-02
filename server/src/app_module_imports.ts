@@ -8,6 +8,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { AuthModule } from './auth.module';
+import { PaymentModule } from './payment/payment.module';
 
 export const AppModuleImportsArray = [
   ConfigModule.forRoot({
@@ -31,6 +32,7 @@ export const AppModuleImportsArray = [
   ReviewsModule,
   OrdersModule,
   // OrderItemsModule,
+  PaymentModule,
   MailerModule.forRootAsync({
     useFactory: (configService: ConfigService) => {
       const SMTP_ADDRESS = configService.get<string>('SMTP_ADDRESS');

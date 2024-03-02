@@ -6,10 +6,11 @@ import {
   JoinColumn,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
-  RelationId,
 } from 'typeorm';
 import { OrderItem } from './order_item.entity';
+import { Payment } from 'src/payment/entities/payment.entity';
 
 @Entity()
 export class Order {
@@ -37,4 +38,8 @@ export class Order {
 
   @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   orderItems: OrderItem[];
+
+  @OneToOne(() => Payment)
+  @JoinColumn()
+  payment: Payment;
 }
