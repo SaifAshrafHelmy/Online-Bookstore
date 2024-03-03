@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common';
 import { AddNewBookDTO } from './dtos/add-new-book.dto';
 import { BooksService } from './books.service';
-import { PaginationQueryDTO } from './dtos/pagination-query.dto';
 import { UpdateBookDTO } from './dtos/update-book.dto';
 import { AuthGuard } from 'src/users/auth.guard';
 import { User } from 'src/users/entities/user.entity';
