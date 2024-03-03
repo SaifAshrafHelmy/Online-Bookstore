@@ -1,8 +1,6 @@
-import { Order } from 'src/orders/entities/order.entity';
 import {
   Column,
   Entity,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -30,12 +28,3 @@ export class Payment {
   @UpdateDateColumn()
   updated_at: Date;
 }
-/* 
-Payment_id
-order_id
-paymob_payment_id
-payment_method: card or wallet?
-status
-amount
-currency?
-*/

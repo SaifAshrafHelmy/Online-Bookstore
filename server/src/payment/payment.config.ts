@@ -20,4 +20,7 @@ export class PaymentConfiguration {
   get hmacSecret(): string {
     return this.configService.get<string>('HMAC_SECRET');
   }
+  get frontEndClient(): string {
+    return this.configService.get<string>('FRONTEND_CLIENT');
+  }
 }

@@ -1,39 +1,41 @@
-import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { PayWithCardDTO, PayWithWalletDTO } from './dtos/payment-request.dto';
+import { AuthGuard } from 'src/users/auth.guard';
 
+@UseGuards(AuthGuard)
 @Controller('payments')
 export class PaymentController {
   constructor(private paymentService: PaymentService) {}
 
-  @Get('/hello')
-  async test() {
-    return 'Hello';
-  }
-
   @Post('/paywithcard')
   async createNewCardPayment(@Body() cardPaymentRequest: PayWithCardDTO) {
-    const res =
-      await this.paymentService.createNewCardPayment(cardPaymentRequest);
-
-    return res;
+    return await this.paymentService.createNewCardPayment(cardPaymentRequest);
   }
 
   @Post('/paywithwallet')
   async createNewWalletPayment(@Body() walletPaymentRequest: PayWithWalletDTO) {
-    const res =
-      await this.paymentService.createNewWalletPayment(walletPaymentRequest);
-
-    return res;
+    return await this.paymentService.createNewWalletPayment(
+      walletPaymentRequest,
+    );
   }
 
   @Post('/post_pay')
+  @HttpCode(HttpStatus.ACCEPTED)
   async listenForPaymentStatus(
     @Body() webhookData: any,
     @Query('hmac') hmac: string,
   ) {
-    await this.paymentService.updatePaymentStatus(webhookData, hmac);
-    return 'All good';
+    this.paymentService.updatePaymentStatus(webhookData, hmac);
   }
 
   @Get('/payment_done_redirect')
@@ -42,9 +44,6 @@ export class PaymentController {
     @Query('hmac') hmac: string,
   ) {
     /* This redirection SHOULD BE (to?) CLIENT SIDE */
-    // console.log({ receivedQuery: reqQuery });
-    // console.log({ receivedHmac: hmac });
-
     const redirectUrlData = await this.paymentService.redirectAfterPayment(
       reqQuery,
       hmac,

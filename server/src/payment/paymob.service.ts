@@ -1,16 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Payment } from './entities/payment.entity';
 import axios, { AxiosRequestConfig } from 'axios';
 import { PaymentConfiguration } from './payment.config';
 import { createHmac } from 'crypto';
 
 @Injectable()
 export class PaymobService {
-  constructor(
-    @InjectRepository(Payment) private readonly paymentRepository,
-    private readonly paymentConfiguration: PaymentConfiguration,
-  ) {}
+  constructor(private readonly paymentConfiguration: PaymentConfiguration) {}
   async initPayment(
     paymentMethod: 'card' | 'wallet',
     amount: number,
@@ -55,8 +50,11 @@ export class PaymobService {
       const firstToken = res.data.token;
       return firstToken;
     } catch (error) {
-      console.error(error);
-      throw new Error('Could not get first token.');
+      console.log(error);
+      throw new HttpException(
+        'Could not get first token.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
   private async getOrderId(
@@ -82,8 +80,11 @@ export class PaymobService {
       const orderId = res.data.id;
       return orderId;
     } catch (error) {
-      console.error(error);
-      throw new Error('Failed to get orderId');
+      console.log(error);
+      throw new HttpException(
+        'Failed to get orderId',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -129,8 +130,11 @@ export class PaymobService {
       const finalPaymentToken = res.data.token;
       return finalPaymentToken;
     } catch (error) {
-      console.error(error);
-      throw new Error('Failed to get final token');
+      console.log(error);
+      throw new HttpException(
+        'Failed to get final token',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
   public payWithCard(paymentToken: string) {
@@ -170,26 +174,24 @@ export class PaymobService {
     };
     try {
       const res = await axios.post(url, requestData, requestConfig);
-      // console.log(res.data);
-      // NOTE: if the integration id is working, it's called redirect_url, if not, it's called redirection_url
-      const { success, pending, redirect_url: redirectUrl } = res.data;
-      // console.log({ success }, { pending }, { redirectUrl });
-      // check for success?
+      // NOTE: if the integration id is working, the url is called redirect_url, if not, it's called redirection_url
+      const { redirect_url: redirectUrl } = res.data;
       return redirectUrl;
     } catch (error) {
-      console.error(error);
-      throw new Error('Failed to get redirectUrl');
+      console.log(error);
+      throw new HttpException(
+        'Failed to get redirectUrl',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  checkValidPaymobCallback = (
+  public checkValidPaymobCallback = (
     obj: any,
     receivedHmac: string,
     webHookType: 'payment_processed' | 'payment_redirection',
   ): boolean => {
-    console.log('started validating ---------------------- ');
-
-    const HMAC_SECRET = process.env.HMAC_SECRET as string;
+    const HMAC_SECRET = this.paymentConfiguration.hmacSecret;
 
     const concatenatedValuesArr = [
       obj.amount_cents,
@@ -220,27 +222,25 @@ export class PaymobService {
       obj.success,
     ];
 
-    concatenatedValuesArr.map((value, idx) => {
+    concatenatedValuesArr.map((value) => {
       if (value === undefined || null) {
         // console.log('badKey: ', idx);
         // console.log({ obj });
-        throw new Error('One of the object values for Hmac was not found ');
+        throw new HttpException(
+          'One of the object values for Hmac was not found ',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     });
 
-    // console.log(concatenatedValuesArr);
     const concatenatedValues = concatenatedValuesArr.join('');
-    // console.log({ concatenatedValues });
     const calculatedHmac = createHmac('sha512', HMAC_SECRET)
       .update(concatenatedValues)
       .digest('hex')
       .toLowerCase();
-
     // console.log("here's the calculated value: ", { calculatedHmac });
     // console.log("here's the received value: ", { receivedHmac });
-
     // console.log('Are they equal? ', calculatedHmac === receivedHmac);
-
     return calculatedHmac === receivedHmac;
   };
 }

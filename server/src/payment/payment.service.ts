@@ -11,7 +11,11 @@ import { PaymentConfiguration } from './payment.config';
 import { PaymobService } from './paymob.service';
 import { Repository } from 'typeorm';
 import { Order } from 'src/orders/entities/order.entity';
-import { PayWithCardDTO, PayWithWalletDTO } from './dtos/payment-request.dto';
+import {
+  PayWithCardDTO,
+  PayWithWalletDTO,
+  PaymentData,
+} from './dtos/payment-request.dto';
 
 @Injectable()
 export class PaymentService {
@@ -42,7 +46,7 @@ export class PaymentService {
     // Call Paymob service
     const [paymobOrderId, finalPaymentToken] =
       await this.paymobService.initPayment('card', order.totalAmount, 'EGP');
-    const paymentData: Omit<Payment, 'id' | 'updated_at'> = {
+    const paymentData: PaymentData = {
       payment_method: 'card',
       status: 'pending',
       amount: order.totalAmount,
@@ -87,7 +91,7 @@ export class PaymentService {
     // Call Paymob service
     const [paymobOrderId, finalPaymentToken] =
       await this.paymobService.initPayment('wallet', order.totalAmount, 'EGP');
-    const paymentData: Omit<Payment, 'id' | 'updated_at'> = {
+    const paymentData: PaymentData = {
       payment_method: 'card',
       status: 'pending',
       amount: order.totalAmount,
@@ -120,7 +124,6 @@ export class PaymentService {
   }
 
   async updatePaymentStatus(webhookData: any, hmac: string) {
-    // console.log('Updating payment status...');
     const validPayment = this.paymobService.checkValidPaymobCallback(
       webhookData.obj,
       hmac,
@@ -136,9 +139,6 @@ export class PaymentService {
     if (!payment) {
       throw new NotFoundException('Payment requested to update was not found');
     }
-    // console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++');
-    // console.log('PAYMENT: ', payment);
-    // console.log('+++++++++++++++++++++++++++++++++++++++++++++++++++++++');
 
     if (success) {
       payment.status = 'complete';
@@ -159,9 +159,7 @@ export class PaymentService {
       throw new BadRequestException('Invalid payment data');
     }
     const success = webhookData.success;
-    const FRONT_END_CLIENT = process.env.FRONTEND_CLIENT;
+    const FRONT_END_CLIENT = this.paymentConfiguration.frontEndClient;
     return { url: `${FRONT_END_CLIENT}/payment/success=${success}` };
-
-    // return { success };
   }
 }

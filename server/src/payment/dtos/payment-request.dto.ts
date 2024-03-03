@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
+import { Payment } from '../entities/payment.entity';
 
 export class PayWithCardDTO {
   @IsNotEmpty()
@@ -17,25 +18,4 @@ export class PayWithWalletDTO {
   phoneNumber: string;
 }
 
-export class CardPaymentDetails {
-  @IsNotEmpty()
-  @IsNumber()
-  amount: number;
-
-  @IsNotEmpty()
-  @IsString()
-  currency: 'EGP' | 'USD';
-}
-export class WalletPaymentDetails {
-  @IsNotEmpty()
-  @IsNumber()
-  amount: number;
-
-  @IsNotEmpty()
-  @IsString()
-  currency: 'EGP' | 'USD';
-
-  @IsNotEmpty()
-  @IsString()
-  phoneNumber: string;
-}
+export type PaymentData = Omit<Payment, 'id' | 'updated_at'>;
