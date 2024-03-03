@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
 import { PayWithCardDTO, PayWithWalletDTO } from './dtos/payment-request.dto';
-import { AuthGuard } from 'src/users/auth.guard';
+import { AuthGuard, Public } from 'src/users/auth.guard';
 
 @UseGuards(AuthGuard)
 @Controller('payments')
@@ -30,6 +30,7 @@ export class PaymentController {
   }
 
   @Post('/post_pay')
+  @Public()
   @HttpCode(HttpStatus.ACCEPTED)
   async listenForPaymentStatus(
     @Body() webhookData: any,
@@ -39,6 +40,7 @@ export class PaymentController {
   }
 
   @Get('/payment_done_redirect')
+  @Public()
   async redirectAfterPaymentUpdate(
     @Query() reqQuery: any,
     @Query('hmac') hmac: string,

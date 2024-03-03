@@ -1,5 +1,4 @@
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
-import { Type } from 'class-transformer';
 import { Payment } from '../entities/payment.entity';
 
 export class PayWithCardDTO {

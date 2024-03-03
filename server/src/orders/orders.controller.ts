@@ -21,10 +21,8 @@ export class OrdersController {
 
   @Get()
   findAllOrders(@Req() request) {
-    console.log("I'm here");
     const user: Partial<User> = request.user;
     if (user.role !== 'customer') {
-      console.log('not a customer!');
       throw new UnauthorizedException("you're not a customer!");
     }
 
@@ -32,8 +30,6 @@ export class OrdersController {
   }
   @Get(':orderId')
   findOneOrder(@Req() request, @Param('orderId') orderId) {
-    console.log("I'm there");
-
     const user: Partial<User> = request.user;
     if (user.role !== 'customer') {
       console.log('not a customer!');

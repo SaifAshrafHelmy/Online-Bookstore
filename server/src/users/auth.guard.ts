@@ -7,17 +7,28 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
+import { SetMetadata } from '@nestjs/common';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private configService: ConfigService,
-
     private jwtService: JwtService,
+    private readonly reflector: Reflector,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.get<boolean>(
+      'isPublic',
+      context.getHandler(),
+    );
+    if (isPublic) {
+      return true;
+    }
+
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+
     if (!token) {
       throw new UnauthorizedException();
     }
@@ -39,3 +50,5 @@ export class AuthGuard implements CanActivate {
     return type === 'Bearer' ? token : undefined;
   }
 }
+
+export const Public = () => SetMetadata('isPublic', true);
