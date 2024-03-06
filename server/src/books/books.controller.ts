@@ -14,7 +14,7 @@ import {
 import { AddNewBookDTO } from './dtos/add-new-book.dto';
 import { BooksService } from './books.service';
 import { UpdateBookDTO } from './dtos/update-book.dto';
-import { AuthGuard } from 'src/users/auth.guard';
+import { AuthGuard, Public } from 'src/users/auth.guard';
 import { User } from 'src/users/entities/user.entity';
 import { FilterQueryDTO } from './dtos/filter-query.dto';
 
@@ -33,11 +33,13 @@ export class BooksController {
   }
 
   @Get()
+  @Public()
   findBooks(@Query() filterQueryDTO: FilterQueryDTO) {
     return this.booksService.findAll(filterQueryDTO);
   }
 
   @Get(':id')
+  @Public()
   findOneBook(@Param('id') bookId: number) {
     return this.booksService.findOne(bookId);
   }
