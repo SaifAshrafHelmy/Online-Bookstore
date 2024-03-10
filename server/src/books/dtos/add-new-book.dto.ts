@@ -1,10 +1,19 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsDefined,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 
 export class AddNewBookDTO {
   @IsString()
+  @IsNotEmpty()
   title: string;
 
   @IsString()
+  @IsNotEmpty()
   author: string;
 
   @IsString()
@@ -16,6 +25,7 @@ export class AddNewBookDTO {
   description: string;
 
   @IsNumber()
+  @IsDefined()
   price: number;
 
   @IsString()
@@ -23,5 +33,7 @@ export class AddNewBookDTO {
   cover_image: string;
 
   @IsNumber()
+  @IsDefined()
+  @Min(1)
   stock_quantity: number;
 }

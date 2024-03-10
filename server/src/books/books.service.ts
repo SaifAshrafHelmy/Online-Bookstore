@@ -55,7 +55,8 @@ export class BooksService {
         // if contradictory, next one overrides
         ...(priceLTE && { price: 'DESC' }),
         ...(priceGTE && { price: 'ASC' }),
-        id: 'ASC',
+        id: 'DESC',
+        // id: 'ASC',
       },
     });
 

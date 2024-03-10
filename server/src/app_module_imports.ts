@@ -14,17 +14,27 @@ export const AppModuleImportsArray = [
   ConfigModule.forRoot({
     isGlobal: true,
   }),
-  TypeOrmModule.forRoot({
-    type: 'postgres',
-    host: 'localhost',
-    port: 5432,
-    username: 'postgres',
-    password: 'pass123',
-    database: 'online-bookstore',
-    entities: ['dist/**/*.entity.js'],
-    migrations: ['dist/migrations/*.js'],
-    // @TODO: Disable in production
-    synchronize: true,
+  TypeOrmModule.forRootAsync({
+    useFactory: (configService: ConfigService) => {
+      const DN_USERNAME = configService.get<string>('DN_USERNAME');
+      const DB_PASSWORD = configService.get<string>('DB_PASSWORD');
+      const DB_NAME = configService.get<string>('DB_NAME');
+      const DB_PORT = configService.get<number>('DB_PORT');
+
+      return {
+        type: 'postgres',
+        host: 'localhost',
+        port: DB_PORT,
+        username: DN_USERNAME,
+        password: DB_PASSWORD,
+        database: DB_NAME,
+        entities: ['dist/**/*.entity.js'],
+        migrations: ['dist/migrations/*.js'],
+        // @TODO: Disable in production
+        synchronize: true,
+      };
+    },
+    inject: [ConfigService],
   }),
   AuthModule,
   UsersModule,
